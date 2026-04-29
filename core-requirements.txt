@@ -1,4 +1,4 @@
-Build a Laravel 12 proof-of-concept called Personal MTD Aggregator.
+Build a Laravel 13 proof-of-concept called Personal MTD Aggregator.
 
 Goal:
 Create a working MVP that demonstrates whether an AI coding agent can build a TaxNav-style MTD quarterly reporting tool for my own landlord/sole-trader use.
@@ -53,8 +53,8 @@ Core requirements:
 
 Technical preferences:
 - Laravel 13
-- use laravel boost
-- Flux UI
+- use laravel boost to follow best practice
+- Prefer Flux UI over tailwind directly, no inline styles
 - SQLite for local demo
 - Laravel migrations, seeders, models, form requests, services
 - Clean, simple domain/service layer
