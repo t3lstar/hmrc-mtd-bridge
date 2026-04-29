@@ -1,0 +1,71 @@
+Build a Laravel 12 proof-of-concept called Personal MTD Aggregator.
+
+Goal:
+Create a working MVP that demonstrates whether an AI coding agent can build a TaxNav-style MTD quarterly reporting tool for my own landlord/sole-trader use.
+
+Core requirements:
+1. User can configure multiple source businesses:
+   - iBPM, ownership percentage 50%
+   - NOSWAD LLP, ownership percentage 100%
+
+2. User can upload CSV files exported from FreeAgent P&L reports.
+   Each row should include:
+   - source business
+   - date
+   - FreeAgent category
+   - description
+   - amount
+   - income_or_expense
+
+3. Create a configurable mapping table:
+   FreeAgent category → HMRC MTD category.
+
+4. Produce quarterly tax-year summaries for UK tax year:
+   Q1: 6 Apr – 5 Jul
+   Q2: 6 Jul – 5 Oct
+   Q3: 6 Oct – 5 Jan
+   Q4: 6 Jan – 5 Apr
+
+5. Apply ownership percentage before aggregation.
+
+6. Show:
+   - per-business quarterly totals
+   - combined personal quarterly totals
+   - HMRC MTD category totals
+   - full tax-year summary
+
+7. Add validation:
+   - unmapped categories must be highlighted
+   - invalid dates must be rejected
+   - negative/positive amounts must be handled consistently
+
+8. Add an audit screen showing:
+   - original uploaded rows
+   - mapped HMRC category
+   - ownership-adjusted amount
+   - quarter assigned
+
+9. Add tests for:
+   - quarter calculation
+   - ownership percentage calculation
+   - category mapping
+   - combined totals
+
+Technical preferences:
+- Laravel 13
+- use laravel boost
+- Flux UI
+- SQLite for local demo
+- Laravel migrations, seeders, models, form requests, services
+- Clean, simple domain/service layer
+- No HMRC live submission yet
+- No FreeAgent API yet
+- No authentication required for the first prototype
+
+Deliverables:
+- Working app
+- README with setup instructions
+- Example CSV files
+- Seeded HMRC category mappings
+- PHPUnit/Pest tests
+- Clear TODO list for adding FreeAgent API and HMRC MTD API later
