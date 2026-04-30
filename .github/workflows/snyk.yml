@@ -46,9 +46,13 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
-      - name: Run Snyk Open Source scan
+      - name: Run Snyk Open Source scan (Composer)
         if: ${{ env.SNYK_TOKEN != '' }}
-        run: snyk test --all-projects --fail-fast --severity-threshold=high
+        run: snyk test --file=composer.lock --package-manager=composer --severity-threshold=high
+
+      - name: Run Snyk Open Source scan (npm)
+        if: ${{ env.SNYK_TOKEN != '' }}
+        run: snyk test --file=package.json --package-manager=npm --severity-threshold=high
 
       - name: Run Snyk Code scan
         if: ${{ env.SNYK_TOKEN != '' }}
