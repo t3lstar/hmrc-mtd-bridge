@@ -105,6 +105,7 @@ Suggested branch naming:
 Before opening or merging a PR, aim to keep the following green:
 
 - formatting and lint checks
+- Snyk security checks
 - tests
 - CodeQL analysis
 
@@ -127,9 +128,44 @@ It does include Larastan-based static analysis via PHPStan.
 
 ## Security Tooling
 
-This project intends to add [Snyk](https://snyk.io/) into its CI/CD workflow once it has been accepted onto the Snyk Developer Program.
+This project uses [Snyk](https://snyk.io/) for additional security scanning in CI and during local agent-assisted development.
 
-Until then, the repository continues to rely on its existing quality and security checks, including tests and CodeQL analysis.
+### Snyk with Codex
+
+To make Snyk available to Codex through MCP, add a block like this to `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.snyk-security]
+command = "/usr/local/bin/snyk"
+args = ["mcp", "-t", "stdio"]
+```
+
+If your local setup uses the `npx`-based launcher instead, use:
+
+```toml
+[mcp_servers.snyk-security]
+command = "npx"
+args = ["-y", "snyk@latest", "mcp", "-t", "stdio"]
+```
+
+After updating the config, restart Codex so the MCP server is loaded.
+
+Expected local usage:
+
+- run a Snyk Code scan after changing first-party application code
+- run a Snyk Open Source scan after dependency changes
+- fix any newly introduced security issues, then rescan
+
+Typical Codex MCP usage in this repo is:
+
+- `snyk_code_scan` against the project root for source-code findings
+- `snyk_sca_scan` against the project root when dependency manifests or lockfiles change
+
+### GitHub Actions setup
+
+The repository expects a GitHub Actions secret named `SNYK_TOKEN`.
+The dedicated Snyk workflow runs on pushes to `main`, pull requests targeting `main`, and manual dispatches.
+Pull requests from forks do not receive repository secrets, so the workflow skips those runs rather than failing on missing credentials.
 
 ## UI Conventions
 
