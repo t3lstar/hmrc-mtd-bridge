@@ -21,6 +21,11 @@ class BusinessFactory extends Factory
             'name' => fake()->unique()->company(),
             'ownership_percentage' => fake()->randomElement([25, 50, 75, 100]),
             'is_active' => true,
+            'freeagent_client_id' => null,
+            'freeagent_client_secret' => null,
+            'freeagent_refresh_token' => null,
+            'freeagent_access_token' => null,
+            'freeagent_access_token_expires_at' => null,
         ];
     }
 }

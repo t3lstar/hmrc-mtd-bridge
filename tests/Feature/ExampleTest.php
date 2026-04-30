@@ -3,5 +3,8 @@
 test('returns a successful response', function () {
     $response = $this->get(route('home'));
 
-    $response->assertOk();
+    $response
+        ->assertOk()
+        ->assertSee('HMRC MTD Bridge')
+        ->assertSee('Login');
 });

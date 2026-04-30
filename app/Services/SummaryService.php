@@ -3,14 +3,14 @@
 namespace App\Services;
 
 use App\Models\Business;
+use App\Models\CategoryMapping;
+use App\Models\HmrcCategory;
 use App\Models\ImportedTransaction;
 use Illuminate\Support\Collection;
 
 class SummaryService
 {
-    public function __construct(private TaxYearService $taxYearService)
-    {
-    }
+    public function __construct(private TaxYearService $taxYearService) {}
 
     /**
      * @return Collection<int, int>
@@ -87,14 +87,25 @@ class SummaryService
             $this->addAmountToBucket($businessBuckets[$businessId]['year'], $adjustedAmount);
             $this->addAmountToBucket($yearTotals, $adjustedAmount);
 
-            $hmrcCategory = $transaction->categoryMapping?->hmrcCategory;
-            $categoryKey = $hmrcCategory?->id ?? 0;
+            $hmrcCategory = $this->resolveHmrcCategory($transaction);
+
+            if ($hmrcCategory === null) {
+                $categoryKey = 0;
+                $categoryLabel = 'Unmapped / Needs review';
+                $categoryReportType = 'review';
+                $categoryType = $transaction->income_or_expense;
+            } else {
+                $categoryKey = $hmrcCategory->id;
+                $categoryLabel = $hmrcCategory->name;
+                $categoryReportType = $hmrcCategory->report_type;
+                $categoryType = $hmrcCategory->category_type;
+            }
 
             if (! array_key_exists($categoryKey, $categoryBuckets)) {
                 $categoryBuckets[$categoryKey] = [
-                    'label' => $hmrcCategory?->name ?? 'Unmapped / Needs review',
-                    'report_type' => $hmrcCategory?->report_type ?? 'review',
-                    'category_type' => $hmrcCategory?->category_type ?? $transaction->income_or_expense,
+                    'label' => $categoryLabel,
+                    'report_type' => $categoryReportType,
+                    'category_type' => $categoryType,
                     'income' => 0.0,
                     'expense' => 0.0,
                     'net' => 0.0,
@@ -130,9 +141,25 @@ class SummaryService
 
     public function adjustedAmount(ImportedTransaction $transaction): float
     {
-        $ownershipShare = (float) $transaction->business->ownership_percentage / 100;
+        $business = $transaction->business;
+        $ownershipShare = $business instanceof Business
+            ? (float) $business->ownership_percentage / 100
+            : 0.0;
 
         return round((float) $transaction->normalized_amount * $ownershipShare, 2);
+    }
+
+    private function resolveHmrcCategory(ImportedTransaction $transaction): ?HmrcCategory
+    {
+        $categoryMapping = $transaction->categoryMapping;
+
+        if (! $categoryMapping instanceof CategoryMapping) {
+            return null;
+        }
+
+        $hmrcCategory = $categoryMapping->hmrcCategory;
+
+        return $hmrcCategory instanceof HmrcCategory ? $hmrcCategory : null;
     }
 
     /**
@@ -168,5 +195,4 @@ class SummaryService
 
         $bucket['net'] += $adjustedAmount;
     }
-}
 }

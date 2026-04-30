@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use Database\Factories\ImportBatchFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Model;
 
 #[Fillable([
     'business_id',
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\Model;
 ])]
 class ImportBatch extends Model
 {
-    /** @use HasFactory<\Database\Factories\ImportBatchFactory> */
+    /** @use HasFactory<ImportBatchFactory> */
     use HasFactory;
 
     public function business(): BelongsTo

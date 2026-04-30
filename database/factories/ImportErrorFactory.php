@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\ImportError;
 use App\Models\ImportBatch;
+use App\Models\ImportError;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
