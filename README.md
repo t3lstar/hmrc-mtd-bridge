@@ -117,6 +117,7 @@ make ci
 If a smaller loop is needed while developing:
 
 ```bash
+make env-lint
 vendor/bin/pint --dirty --format agent
 php artisan test --compact
 ```

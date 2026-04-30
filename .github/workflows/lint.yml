@@ -37,6 +37,12 @@ jobs:
           composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
           npm install
 
+      - name: Copy Environment File
+        run: cp .env.example .env
+
+      - name: Lint Environment Files
+        run: make env-lint
+
       - name: Run Pint
         run: composer lint
 
