@@ -7,6 +7,7 @@ use App\Models\ImportBatch;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class CsvImportService
@@ -237,7 +238,7 @@ class CsvImportService
             try {
                 $parsedDate = CarbonImmutable::createFromFormat($format, $trimmedValue);
 
-                if ($parsedDate !== false) {
+                if ($parsedDate !== null) {
                     return $parsedDate->startOfDay();
                 }
             } catch (\Throwable) {

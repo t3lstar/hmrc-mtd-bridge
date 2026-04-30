@@ -43,11 +43,19 @@ class Business extends Model
 
     public function freeAgentAccessTokenHasExpired(?CarbonInterface $now = null): bool
     {
-        if (blank($this->freeagent_access_token) || $this->freeagent_access_token_expires_at === null) {
+        if (blank($this->freeagent_access_token)) {
             return true;
         }
 
-        return $this->freeagent_access_token_expires_at->lte(($now ?? now())->copy()->addMinute());
+        $expiresAtValue = $this->getAttribute('freeagent_access_token_expires_at');
+
+        if ($expiresAtValue === null) {
+            return true;
+        }
+
+        $expiresAt = $this->asDateTime($expiresAtValue);
+
+        return $expiresAt->lte(($now ?? now())->copy()->addMinute());
     }
 
     protected function casts(): array

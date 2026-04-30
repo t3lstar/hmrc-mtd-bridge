@@ -121,6 +121,9 @@ vendor/bin/pint --dirty --format agent
 php artisan test --compact
 ```
 
+The `Makefile` local CI flow is driven by the checks available in this repository and does not depend on an `env:lint` Artisan command.
+It does include Larastan-based static analysis via PHPStan.
+
 ## Security Tooling
 
 This project intends to add [Snyk](https://snyk.io/) into its CI/CD workflow once it has been accepted onto the Snyk Developer Program.

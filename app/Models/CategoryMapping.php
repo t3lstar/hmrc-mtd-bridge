@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
+use Database\Factories\CategoryMappingFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Model;
 
 #[Fillable(['lookup_key', 'freeagent_category', 'hmrc_category_id', 'needs_review', 'notes'])]
 class CategoryMapping extends Model
 {
-    /** @use HasFactory<\Database\Factories\CategoryMappingFactory> */
+    /** @use HasFactory<CategoryMappingFactory> */
     use HasFactory;
 
     public function hmrcCategory(): BelongsTo

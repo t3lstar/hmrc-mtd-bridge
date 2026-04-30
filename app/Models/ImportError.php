@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use Database\Factories\ImportErrorFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable(['import_batch_id', 'row_number', 'raw_row', 'reasons'])]
 class ImportError extends Model
 {
-    /** @use HasFactory<\Database\Factories\ImportErrorFactory> */
+    /** @use HasFactory<ImportErrorFactory> */
     use HasFactory;
 
     public function importBatch(): BelongsTo

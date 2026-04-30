@@ -2,7 +2,7 @@ SHELL := /bin/bash
 .DEFAULT_GOAL := check
 
 # These targets are actions rather than files, so always run them when requested.
-.PHONY: setup install env db migrate seed frontend frontend-check quality check ci validate env-lint sca format format-check sast test clear-up serve expose
+.PHONY: setup install env db migrate seed frontend frontend-check quality check ci validate sca format format-check sast test clear-up serve expose
 
 # Local files used by the setup targets.
 ENV_FILE := .env
@@ -64,13 +64,7 @@ frontend-check: frontend
 # Clear Laravel caches and validate dependency metadata.
 validate: clear-up
 	$(call PRINT_SECTION,Configuration validation)
-	php artisan env:lint
 	composer validate --strict
-
-# Lint .env and .env.example syntax and key parity.
-env-lint:
-	$(call PRINT_SECTION,Environment lint)
-	php artisan env:lint
 
 # Run dependency security audits for PHP and Node packages.
 sca:
