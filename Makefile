@@ -47,7 +47,7 @@ migrate:
 	$(call PRINT_SECTION,Database migrations)
 	php artisan migrate:refresh --force
 
-# Seed the database with the default Laravel starter data.
+# Seed the database with starter tax categories and mappings.
 seed:
 	$(call PRINT_SECTION,Database seed)
 	php artisan db:seed --force

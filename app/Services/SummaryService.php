@@ -8,9 +8,7 @@ use Illuminate\Support\Collection;
 
 class SummaryService
 {
-    public function __construct(private TaxYearService $taxYearService)
-    {
-    }
+    public function __construct(private TaxYearService $taxYearService) {}
 
     /**
      * @return Collection<int, int>
@@ -168,5 +166,4 @@ class SummaryService
 
         $bucket['net'] += $adjustedAmount;
     }
-}
 }

@@ -3,17 +3,15 @@
 namespace App\Services;
 
 use App\Models\Business;
-use App\Models\CategoryMapping;
 use App\Models\ImportBatch;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class CsvImportService
 {
-    public function __construct(private TaxYearService $taxYearService) {}
+    public function __construct(private ImportedTransactionWriter $importedTransactionWriter) {}
 
     /**
      * @return array{
@@ -87,38 +85,17 @@ class CsvImportService
             $transactionDate = $this->parseDate((string) $rawRow['date']);
             $amount = $this->parseAmount((string) $rawRow['amount']);
             $direction = $this->normalizeDirection((string) $rawRow['income_or_expense']);
-            $normalizedAmount = $direction === 'income'
-                ? abs($amount)
-                : -abs($amount);
             $freeagentCategory = trim((string) $rawRow['freeagent_category']);
-            $lookupKey = Str::lower($freeagentCategory);
-
-            $mapping = CategoryMapping::query()->firstOrCreate(
-                ['lookup_key' => $lookupKey],
-                [
-                    'freeagent_category' => $freeagentCategory,
-                    'needs_review' => true,
-                ],
+            $this->importedTransactionWriter->write(
+                $batch,
+                $business,
+                $transactionDate,
+                $freeagentCategory,
+                trim((string) ($rawRow['description'] ?? '')) ?: null,
+                $amount,
+                $direction,
+                $rawRow,
             );
-
-            $mapping->forceFill([
-                'freeagent_category' => $freeagentCategory,
-                'needs_review' => $mapping->hmrc_category_id === null,
-            ])->save();
-
-            $batch->importedTransactions()->create([
-                'business_id' => $business->id,
-                'category_mapping_id' => $mapping->id,
-                'transaction_date' => $transactionDate->format('Y-m-d'),
-                'freeagent_category' => $freeagentCategory,
-                'description' => trim((string) ($rawRow['description'] ?? '')) ?: null,
-                'amount' => $amount,
-                'normalized_amount' => $normalizedAmount,
-                'income_or_expense' => $direction,
-                'tax_year_start' => $this->taxYearService->taxYearStart($transactionDate),
-                'tax_year_quarter' => $this->taxYearService->quarterFor($transactionDate),
-                'raw_row' => $rawRow,
-            ]);
 
             $validRows++;
         }
