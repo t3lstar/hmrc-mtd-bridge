@@ -62,6 +62,7 @@ Useful targets:
 - `make setup` installs dependencies, prepares `.env`, rebuilds the database, seeds starter categories and mappings, builds assets, and runs quality checks.
 - `make check` runs the local quality workflow.
 - `make ci` runs non-mutating CI-style checks.
+- `make dast-smoke` runs a local OWASP ZAP baseline scan against a Herd-served app and writes an HTML report under Laravel's `storage/logs` directory.
 - `make test` runs the test suite.
 - `make frontend` rebuilds frontend assets.
 - `make clear-up` clears Laravel caches.
@@ -166,6 +167,35 @@ Typical Codex MCP usage in this repo is:
 The repository expects a GitHub Actions secret named `SNYK_TOKEN`.
 The dedicated Snyk workflow runs on pushes to `main`, pull requests targeting `main`, and manual dispatches.
 Pull requests from forks do not receive repository secrets, so the workflow skips those runs rather than failing on missing credentials.
+
+## Local Smoke DAST
+
+`make dast-smoke` runs a lightweight local OWASP ZAP Baseline scan against a Laravel app that is already being served by Herd.
+It is intended as a developer feedback check rather than a blocking CI gate.
+By default it uses `APP_URL` from `.env` as the scan target.
+The target prints each step while it runs and will pull the official OWASP ZAP Docker image automatically if it is not present locally.
+
+Run it with the default target:
+
+```bash
+make dast-smoke
+```
+
+Or point it at a different Herd-served app:
+
+```bash
+make dast-smoke ZAP_TARGET=https://some-app.test
+```
+
+The report is written to `storage/logs/zap-smoke-report.html`.
+
+Notes:
+
+- Docker must be installed and its daemon must already be running.
+- Herd must already be serving the target app before the scan starts.
+- This scan is intentionally lightweight and non-blocking at first.
+- It is not a replacement for fuller DAST against a staging environment in GitHub Actions.
+- If Docker cannot resolve a local `.test` hostname, use a reachable Herd URL or your Mac LAN IP in `ZAP_TARGET`.
 
 ## UI Conventions
 

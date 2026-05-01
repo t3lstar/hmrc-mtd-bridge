@@ -2,7 +2,7 @@ SHELL := /bin/bash
 .DEFAULT_GOAL := check
 
 # These targets are actions rather than files, so always run them when requested.
-.PHONY: setup install env db migrate seed frontend frontend-check quality check ci validate env-lint sca format format-check sast test clear-up clear-logs serve expose
+.PHONY: setup install env db migrate seed frontend frontend-check quality check ci validate env-lint sca format format-check sast test dast-smoke clear-up clear-logs serve expose
 
 # Local files used by the setup targets.
 ENV_FILE := .env
@@ -11,6 +11,9 @@ PHPSTAN_MEMORY_LIMIT ?= 1G
 DOTENV_LINTER_VERSION ?= 4.0.0
 DOTENV_LINTER_BIN := vendor/bin/dotenv-linter
 DOTENV_LINTER_IGNORED_CHECKS := UnorderedKey,QuoteCharacter
+ZAP_TARGET ?= $(shell if [ -f $(ENV_FILE) ]; then sed -n 's/^APP_URL=//p' $(ENV_FILE) | head -n 1; else printf '%s\n' 'https://aps-mvr-poc.test'; fi)
+ZAP_REPORT ?= storage/logs/zap-smoke-report.html
+ZAP_IMAGE ?= ghcr.io/zaproxy/zaproxy:stable
 
 define PRINT_SECTION
 	@printf '\n==> %s\n' "$(1)"
@@ -122,6 +125,35 @@ sast:
 test:
 	$(call PRINT_SECTION,Test suite)
 	php artisan test
+
+# Run a local Smoke DAST scan against a Herd-served app using OWASP ZAP Baseline.
+# This expects the app to already be running in Herd, is intentionally non-blocking
+# at first, and is not a replacement for fuller staging DAST in GitHub Actions.
+# If Docker cannot resolve a local .test hostname, try a reachable Herd URL or your
+# Mac LAN IP in ZAP_TARGET instead of the default localhost-style development domain.
+dast-smoke:
+	$(call PRINT_SECTION,Local Smoke DAST)
+	@target_host="$$(printf '%s\n' "$(ZAP_TARGET)" | sed -E 's#^[A-Za-z]+://([^/:]+).*#\1#')"; \
+		printf 'Resolved target host: %s\n' "$$target_host"
+	@printf 'Using target: %s\n' "$(ZAP_TARGET)"
+	@printf 'Report path: %s\n' "$(ZAP_REPORT)"
+	@printf 'Checking Docker CLI availability...\n'
+	@command -v docker >/dev/null 2>&1 || { printf 'Docker CLI is required for make dast-smoke.\n'; exit 1; }
+	@printf 'Checking Docker daemon...\n'
+	@docker info >/dev/null 2>&1 || { printf 'Docker daemon is not running. Start Docker Desktop (or another Docker daemon) and retry.\n'; exit 1; }
+	@printf 'Ensuring OWASP ZAP image is available locally...\n'
+	@docker image inspect "$(ZAP_IMAGE)" >/dev/null 2>&1 || docker pull "$(ZAP_IMAGE)"
+	@mkdir -p "$(dir $(ZAP_REPORT))"
+	@printf 'Running OWASP ZAP baseline smoke scan...\n'
+	@target_host="$$(printf '%s\n' "$(ZAP_TARGET)" | sed -E 's#^[A-Za-z]+://([^/:]+).*#\1#')"; \
+	docker run -t --rm \
+		--add-host="$$target_host:host-gateway" \
+		-v "$(PWD):/zap/wrk/:rw" \
+		"$(ZAP_IMAGE)" zap-baseline.py \
+		-t "$(ZAP_TARGET)" \
+		-r "$(ZAP_REPORT)" \
+		-I
+	@printf 'Smoke DAST report written to %s\n' "$(ZAP_REPORT)"
 
 # Clear Laravel application, route, config, view, and optimization caches.
 clear-up: db

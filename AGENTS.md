@@ -39,17 +39,6 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 - Do not create verification scripts or tinker when tests cover that functionality and prove they work. Unit and feature tests are more important.
 
-## Snyk Workflow
-
-- Snyk MCP is available in this project and should be used during coding when security-sensitive code or dependency changes are introduced.
-- After generating or changing first-party application code, run a Snyk Code scan against the project root and review the results before finalizing the change.
-- After changing `composer.json`, `composer.lock`, `package.json`, or `package-lock.json`, run a Snyk Open Source scan against the project root.
-- Use absolute paths with Snyk MCP tools.
-- Do not run the Snyk trust tool unless the user explicitly instructs you to trust the folder.
-- If Snyk finds issues in newly introduced code, fix them and rescan before finalizing work.
-- If Snyk finds pre-existing issues unrelated to the requested change, call them out separately instead of silently broadening scope.
-- When a run prevents or fixes issues, send accurate per-run deltas through Snyk feedback rather than cumulative counts.
-
 ## Application Structure & Architecture
 
 - Stick to existing directory structure; don't create new base folders without approval.
@@ -192,3 +181,12 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - Do NOT delete tests without approval.
 
 </laravel-boost-guidelines>
+
+<project-playbooks>
+
+## Project Playbooks
+
+- This repository stores longer agent operating procedures in `.agents/playbooks/`.
+- Read all files in `.agents/playbooks/` before making changes in any covered functional area.
+
+</project-playbooks>
